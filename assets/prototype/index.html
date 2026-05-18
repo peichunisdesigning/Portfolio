@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Shuttle Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- Header -->
+  <header class="header">
+    <button class="header-back" id="backBtn" style="display:none" aria-label="Back">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="header-mark" id="headerMark">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16M7 17v2M17 17v2"/></svg>
+    </div>
+    <div class="header-title" id="headerTitle">Shuttle Tracker</div>
+
+    <!-- Primary switcher: Home / Live Map -->
+    <div class="primary-switch" id="primarySwitch">
+      <button class="primary-switch-btn active" data-tab="home" onclick="goTab('home')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v10a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/></svg>
+        Home
+      </button>
+      <button class="primary-switch-btn" data-tab="map" onclick="goTab('map')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-6-3V5l6 3 6-3 6 3v12l-6-3-6 3z"/><path d="M9 8v12M15 5v12"/></svg>
+        Live Map
+      </button>
+    </div>
+
+    <div style="flex:1"></div>
+    <div class="last-updated" id="lastUpdated">12s ago</div>
+    <button class="header-icon-btn refresh-btn" id="refreshBtn" aria-label="Refresh">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.3L3 16M3 21v-5h5"/></svg>
+    </button>
+    <div style="position:relative">
+      <button class="more-btn" id="moreBtn" aria-label="More">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
+      <div class="more-menu" id="moreMenu">
+        <button class="more-item" data-tab="routes" onclick="goTab('routes'); closeMore()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16M7 17v2M17 17v2"/></svg>
+          All Routes
+        </button>
+        <button class="more-item" data-tab="schedule" onclick="goTab('schedule'); closeMore()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Schedule
+        </button>
+        <button class="more-item" data-tab="alerts" onclick="goTab('alerts'); closeMore()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9zM10 21a2 2 0 0 0 4 0"/></svg>
+          Alerts
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile drawer (no longer used; kept hidden) -->
+  <div class="drawer-scrim" id="drawerScrim" style="display:none"></div>
+  <aside class="drawer" id="drawer" style="display:none"></aside>
+
+  <!-- ─────────── HOME ─────────── -->
+  <div class="page" id="page-home" data-screen-label="01 Home">
+    <!-- Service alert -->
+    <div class="alert-banner" style="margin-top:16px">
+      <div class="alert-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+      </div>
+      <div class="alert-text">
+        <strong>Service alert</strong>
+        Polytechnic route running 4 min late due to construction near Simulator Building.
+      </div>
+    </div>
+
+    <!-- Hero: Nearest stop -->
+    <div class="section">
+      <div class="hero-card">
+        <div class="hero-eyebrow">Nearest stop · 0.3 mi away</div>
+        <div class="hero-stop">Forest &amp; Lemon</div>
+        <div class="hero-meta">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
+          <span><strong>6 min</strong> walk · 3 routes serve this stop</span>
+        </div>
+        <div class="hero-arrivals">
+          <div class="hero-arrival-row" onclick="goRoute('tempe-poly')">
+            <div class="hero-arrival-dot" style="background:var(--gold-500)"></div>
+            <div class="hero-arrival-name">Tempe ⇄ Polytechnic<div style="font-size:10px;opacity:.65;font-weight:500;margin-top:2px">Shuttle #1723</div></div>
+            <div class="hero-arrival-eta">5 min</div>
+          </div>
+          <div class="hero-arrival-row" onclick="goRoute('tempe-downtown')">
+            <div class="hero-arrival-dot" style="background:var(--campus-downtown)"></div>
+            <div class="hero-arrival-name">Tempe ⇄ Downtown<div style="font-size:10px;opacity:.65;font-weight:500;margin-top:2px">Shuttle #1456</div></div>
+            <div class="hero-arrival-eta">10 min</div>
+          </div>
+          <div class="hero-arrival-row" onclick="goRoute('tempe-west')">
+            <div class="hero-arrival-dot" style="background:var(--campus-west)"></div>
+            <div class="hero-arrival-name">Tempe ⇄ West<div style="font-size:10px;opacity:.65;font-weight:500;margin-top:2px">Shuttle #1891</div></div>
+            <div class="hero-arrival-eta">22 min</div>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="hero-btn hero-btn-gold" onclick="toast('🔔 Alert set for next arrival')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9zM10 21a2 2 0 0 0 4 0"/></svg>
+            Notify me
+          </button>
+          <button class="hero-btn hero-btn-ghost" onclick="goTab('map')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-7.5-8-13a8 8 0 1 1 16 0c0 5.5-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>
+            View on map
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="section">
+      <div class="quick-row">
+        <button class="quick-card" onclick="goTab('map')">
+          <div class="quick-icon" style="background:var(--maroon-100); color:var(--maroon-700)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-6-3V5l6 3 6-3 6 3v12l-6-3-6 3z"/><path d="M9 8v12M15 5v12"/></svg>
+          </div>
+          <span class="quick-label">Live Map</span>
+        </button>
+        <button class="quick-card" onclick="goTab('routes')">
+          <div class="quick-icon" style="background:#FCE9D7; color:var(--campus-poly)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16M7 17v2M17 17v2"/></svg>
+          </div>
+          <span class="quick-label">All Routes</span>
+        </button>
+        <button class="quick-card" onclick="goTab('schedule')">
+          <div class="quick-icon" style="background:#DCEAF6; color:var(--campus-downtown)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </div>
+          <span class="quick-label">Schedule</span>
+        </button>
+        <button class="quick-card" onclick="goTab('alerts')">
+          <div class="quick-icon" style="background:rgba(212,154,26,.16); color:#8a6510">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9zM10 21a2 2 0 0 0 4 0"/></svg>
+          </div>
+          <span class="quick-label">Alerts</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Saved -->
+    <div class="section">
+      <h3 class="section-title">Saved routes</h3>
+      <div class="route-list">
+        <div class="route-row" onclick="goRoute('tempe-poly')">
+          <div class="route-bus" style="background:var(--maroon-100); color:var(--maroon-700)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16M7 17v2M17 17v2"/></svg>
+          </div>
+          <div class="route-info">
+            <div class="route-name">Tempe ⇄ Polytechnic <span style="font-size:10px;color:var(--ink-400);font-weight:500">Shuttle #1723</span></div>
+            <div class="route-sub">Next: Forest &amp; Lemon · <span class="pill pill-success" style="padding:1px 6px;font-size:10px">on time</span></div>
+          </div>
+          <div class="route-eta">
+            <div class="route-eta-num">5</div>
+            <div class="route-eta-unit">MIN</div>
+          </div>
+          <div class="route-fav is-fav">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 17,14 19,22 12,18 5,22 7,14 2,9 9,9"/></svg>
+          </div>
+        </div>
+        <div class="route-row" onclick="goRoute('tempe-downtown')">
+          <div class="route-bus" style="background:#DCEAF6; color:var(--campus-downtown)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16M7 17v2M17 17v2"/></svg>
+          </div>
+          <div class="route-info">
+            <div class="route-name">Tempe ⇄ Downtown <span style="font-size:10px;color:var(--ink-400);font-weight:500">Shuttle #1456</span></div>
+            <div class="route-sub">Next: Central Ave &amp; Polk St · <span class="pill pill-warning" style="padding:1px 6px;font-size:10px">+4 min</span></div>
+          </div>
+          <div class="route-eta">
+            <div class="route-eta-num">10</div>
+            <div class="route-eta-unit">MIN</div>
+          </div>
+          <div class="route-fav is-fav">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15,9 22,9 17,14 19,22 12,18 5,22 7,14 2,9 9,9"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─────────── MAP ─────────── -->
+  <div class="page hidden" id="page-map" data-screen-label="02 Live Map">
+    <div class="map-wrap">
+      <div id="mapbox-map" class="map-canvas">
+        <svg class="map-svg" viewBox="0 0 800 1200" preserveAspectRatio="none">
+          <!-- Park / green areas -->
+          <rect class="map-park" x="60" y="940" width="200" height="160" rx="6"/>
+          <rect class="map-park" x="540" y="80" width="220" height="140" rx="6"/>
+          <circle class="map-park" cx="180" cy="500" r="70"/>
+          <!-- Water -->
+          <path class="map-water" d="M 0 200 Q 160 240 320 200 T 640 220 L 800 240 L 800 280 Q 640 300 480 270 T 160 290 L 0 270 Z"/>
+          <text class="map-area-label" x="200" y="260" opacity=".5">Salt River</text>
+
+          <!-- City blocks (light tiles) -->
+          <g opacity=".7">
+            <rect class="map-block" x="60" y="320" width="180" height="140" rx="3"/>
+            <rect class="map-block" x="260" y="320" width="180" height="140" rx="3"/>
+            <rect class="map-block" x="460" y="320" width="160" height="140" rx="3"/>
+            <rect class="map-block" x="640" y="320" width="120" height="140" rx="3"/>
+
+            <rect class="map-block" x="60" y="480" width="100" height="120" rx="3"/>
+            <rect class="map-block" x="260" y="480" width="180" height="120" rx="3"/>
+            <rect class="map-block" x="460" y="480" width="160" height="120" rx="3"/>
+            <rect class="map-block" x="640" y="480" width="120" height="120" rx="3"/>
+
+            <rect class="map-block" x="60" y="620" width="180" height="160" rx="3"/>
+            <rect class="map-block" x="260" y="620" width="180" height="160" rx="3"/>
+            <rect class="map-block" x="460" y="620" width="160" height="160" rx="3"/>
+            <rect class="map-block" x="640" y="620" width="120" height="160" rx="3"/>
+
+            <rect class="map-block" x="60" y="800" width="180" height="120" rx="3"/>
+            <rect class="map-block" x="260" y="800" width="180" height="120" rx="3"/>
+            <rect class="map-block" x="460" y="800" width="160" height="120" rx="3"/>
+            <rect class="map-block" x="640" y="800" width="120" height="120" rx="3"/>
+
+            <rect class="map-block" x="280" y="940" width="160" height="160" rx="3"/>
+            <rect class="map-block" x="460" y="940" width="160" height="160" rx="3"/>
+            <rect class="map-block" x="640" y="940" width="120" height="160" rx="3"/>
+          </g>
+
+          <!-- Buildings -->
+          <g>
+            <!-- Generic buildings -->
+            <rect class="map-building" x="80" y="340" width="50" height="40"/>
+            <rect class="map-building" x="140" y="340" width="40" height="60"/>
+            <rect class="map-building" x="190" y="345" width="44" height="50"/>
+            <rect class="map-building" x="80" y="410" width="60" height="38"/>
+            <rect class="map-building" x="150" y="410" width="80" height="40"/>
+
+            <rect class="map-building" x="280" y="340" width="60" height="50"/>
+            <rect class="map-building" x="350" y="340" width="40" height="80"/>
+            <rect class="map-building" x="400" y="345" width="36" height="60"/>
+            <rect class="map-building" x="280" y="410" width="80" height="42"/>
+            <rect class="map-building" x="370" y="425" width="60" height="30"/>
+
+            <rect class="map-building" x="480" y="340" width="60" height="60"/>
+            <rect class="map-building" x="550" y="340" width="60" height="40"/>
+            <rect class="map-building" x="480" y="410" width="40" height="40"/>
+            <rect class="map-building" x="530" y="395" width="50" height="55"/>
+            <rect class="map-building" x="590" y="400" width="20" height="50"/>
+
+            <rect class="map-building" x="660" y="340" width="40" height="50"/>
+            <rect class="map-building" x="710" y="340" width="40" height="80"/>
+            <rect class="map-building" x="660" y="400" width="90" height="46"/>
+
+            <rect class="map-building" x="80" y="500" width="68" height="38"/>
+            <rect class="map-building" x="80" y="550" width="40" height="38"/>
+            <rect class="map-building" x="130" y="550" width="20" height="38"/>
+
+            <rect class="map-building" x="280" y="500" width="50" height="40"/>
+            <rect class="map-building" x="340" y="500" width="40" height="60"/>
+            <rect class="map-building" x="390" y="500" width="40" height="40"/>
+            <rect class="map-building" x="280" y="555" width="80" height="35"/>
+            <rect class="map-building" x="370" y="555" width="60" height="35"/>
+
+            <!-- Tempe campus (maroon-tinted) -->
+            <rect class="map-building-campus" x="480" y="500" width="60" height="40"/>
+            <rect class="map-building-campus" x="550" y="500" width="60" height="60"/>
+            <rect class="map-building-campus" x="480" y="555" width="40" height="40"/>
+            <rect class="map-building-campus" x="530" y="575" width="80" height="20"/>
+            <text class="map-area-label" x="487" y="495" font-size="9" letter-spacing="0">TEMPE CAMPUS</text>
+
+            <rect class="map-building" x="660" y="500" width="40" height="50"/>
+            <rect class="map-building" x="710" y="500" width="40" height="80"/>
+            <rect class="map-building" x="660" y="560" width="40" height="30"/>
+
+            <rect class="map-building" x="80" y="640" width="60" height="48"/>
+            <rect class="map-building" x="150" y="640" width="80" height="40"/>
+            <rect class="map-building" x="80" y="700" width="40" height="60"/>
+            <rect class="map-building" x="130" y="690" width="40" height="40"/>
+            <rect class="map-building" x="180" y="700" width="50" height="60"/>
+
+            <rect class="map-building" x="280" y="640" width="50" height="40"/>
+            <rect class="map-building" x="340" y="640" width="50" height="80"/>
+            <rect class="map-building" x="400" y="640" width="36" height="60"/>
+            <rect class="map-building" x="280" y="700" width="60" height="60"/>
+            <rect class="map-building" x="370" y="730" width="60" height="40"/>
+
+            <rect class="map-building" x="480" y="640" width="60" height="60"/>
+            <rect class="map-building" x="550" y="640" width="40" height="40"/>
+            <rect class="map-building" x="600" y="640" width="20" height="120"/>
+            <rect class="map-building" x="480" y="710" width="40" height="50"/>
+            <rect class="map-building" x="540" y="690" width="50" height="60"/>
+
+            <rect class="map-building" x="660" y="640" width="40" height="50"/>
+            <rect class="map-building" x="710" y="640" width="40" height="60"/>
+            <rect class="map-building" x="660" y="700" width="80" height="60"/>
+
+            <rect class="map-building" x="80" y="820" width="50" height="40"/>
+            <rect class="map-building" x="140" y="820" width="40" height="60"/>
+            <rect class="map-building" x="190" y="825" width="44" height="50"/>
+
+            <rect class="map-building" x="280" y="820" width="40" height="40"/>
+            <rect class="map-building" x="330" y="820" width="50" height="60"/>
+            <rect class="map-building" x="390" y="820" width="40" height="40"/>
+            <rect class="map-building" x="280" y="870" width="80" height="30"/>
+
+            <rect class="map-building" x="480" y="820" width="60" height="50"/>
+            <rect class="map-building" x="550" y="820" width="60" height="40"/>
+            <rect class="map-building" x="480" y="880" width="50" height="30"/>
+            <rect class="map-building" x="540" y="870" width="70" height="40"/>
+
+            <!-- Polytechnic campus area -->
+            <rect class="map-building-campus" x="660" y="820" width="40" height="50"/>
+            <rect class="map-building-campus" x="710" y="820" width="40" height="80"/>
+            <rect class="map-building-campus" x="660" y="880" width="80" height="30"/>
+            <text class="map-area-label" x="660" y="815" font-size="9" letter-spacing="0">POLY CAMPUS</text>
+
+            <rect class="map-building" x="300" y="960" width="50" height="50"/>
+            <rect class="map-building" x="360" y="960" width="40" height="80"/>
+            <rect class="map-building" x="410" y="965" width="20" height="60"/>
+            <rect class="map-building" x="300" y="1020" width="80" height="40"/>
+
+            <rect class="map-building" x="480" y="960" width="40" height="60"/>
+            <rect class="map-building" x="530" y="960" width="50" height="40"/>
+            <rect class="map-building" x="590" y="960" width="20" height="80"/>
+            <rect class="map-building" x="480" y="1030" width="50" height="30"/>
+
+            <rect class="map-building" x="660" y="960" width="40" height="80"/>
+            <rect class="map-building" x="710" y="960" width="40" height="40"/>
+            <rect class="map-building" x="660" y="1050" width="80" height="40"/>
+          </g>
+
+          <!-- Streets: casing layer (darker outline) -->
+          <g class="map-street">
+            <!-- Major horizontals (casing) -->
+            <line class="map-street-major-casing" x1="0" y1="300" x2="800" y2="300"/>
+            <line class="map-street-major-casing" x1="0" y1="610" x2="800" y2="610"/>
+            <line class="map-street-major-casing" x1="0" y1="930" x2="800" y2="930"/>
+            <!-- Major verticals (casing) -->
+            <line class="map-street-major-casing" x1="250" y1="300" x2="250" y2="1200"/>
+            <line class="map-street-major-casing" x1="450" y1="300" x2="450" y2="1200"/>
+            <line class="map-street-major-casing" x1="630" y1="300" x2="630" y2="1200"/>
+          </g>
+          <g class="map-street">
+            <!-- Minor streets -->
+            <line class="map-street-minor" x1="0" y1="470" x2="800" y2="470"/>
+            <line class="map-street-minor" x1="0" y1="790" x2="800" y2="790"/>
+            <line class="map-street-minor" x1="50" y1="300" x2="50" y2="1200"/>
+            <line class="map-street-minor" x1="150" y1="610" x2="150" y2="1200"/>
+            <line class="map-street-minor" x1="350" y1="300" x2="350" y2="1200"/>
+            <line class="map-street-minor" x1="540" y1="300" x2="540" y2="1200"/>
+            <line class="map-street-minor" x1="730" y1="300" x2="730" y2="1200"/>
+
+            <!-- Major streets (white) -->
+            <line class="map-street-major" x1="0" y1="300" x2="800" y2="300"/>
+            <line class="map-street-major" x1="0" y1="610" x2="800" y2="610"/>
+            <line class="map-street-major" x1="0" y1="930" x2="800" y2="930"/>
+            <line class="map-street-major" x1="250" y1="300" x2="250" y2="1200"/>
+            <line class="map-street-major" x1="450" y1="300" x2="450" y2="1200"/>
+            <line class="map-street-major" x1="630" y1="300" x2="630" y2="1200"/>
+          </g>
+
+          <!-- Street labels -->
+          <text class="map-street-label" x="20" y="294">University Dr</text>
+          <text class="map-street-label" x="20" y="604">Apache Blvd</text>
+          <text class="map-street-label" x="20" y="924">Broadway Rd</text>
+          <text class="map-street-label" x="256" y="316" transform="rotate(-90 256 316)" style="transform-origin: 256px 316px">Mill Ave</text>
+          <text class="map-street-label" x="456" y="316" transform="rotate(-90 456 316)" style="transform-origin: 456px 316px">Forest Ave</text>
+          <text class="map-street-label" x="636" y="316" transform="rotate(-90 636 316)" style="transform-origin: 636px 316px">Rural Rd</text>
+
+          <!-- Bus routes (drawn along streets) -->
+          <!-- Tempe → Polytechnic (active, maroon) -->
+          <path class="map-route" stroke-width="7" d="M 250 980 L 250 610 L 450 610 L 450 470 L 630 470 L 630 820 L 730 820 L 730 980"/>
+          <path class="map-route map-route-active map-route-dash" d="M 250 980 L 250 610 L 450 610 L 450 470 L 540 470" />
+          <!-- Tempe → Downtown (blue) -->
+          <path class="map-route" stroke="var(--campus-downtown)" stroke-width="6" stroke-dasharray="2 0" d="M 250 980 L 250 790 L 50 790 L 50 470 L 250 470 L 250 300"/>
+          <!-- Tempe → West (green) -->
+          <path class="map-route" stroke="var(--campus-west)" stroke-width="6" stroke-opacity=".7" d="M 250 980 L 250 1100 L 50 1100"/>
+
+          <!-- Bus stop pin shadows -->
+          <circle cx="250" cy="980" r="14" fill="rgba(0,0,0,.12)"/>
+          <circle cx="450" cy="610" r="11" fill="rgba(0,0,0,.10)"/>
+          <circle cx="540" cy="470" r="11" fill="rgba(0,0,0,.10)"/>
+          <circle cx="630" cy="820" r="11" fill="rgba(0,0,0,.10)"/>
+          <circle cx="730" cy="980" r="11" fill="rgba(0,0,0,.10)"/>
+        </svg>
+
+        <!-- Stops (positioned by % matching SVG coords / 800 / 1200) -->
+        <!-- Forest & Lemon = nearest, gold marker, near 250,980 -->
+        <button class="map-pin" style="left:31.25%;top:81.7%" onclick="openStopDetail('forest-lemon')">
+          <div class="map-pin-dot gold" style="width:32px;height:32px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          </div>
+        </button>
+        <!-- University & Mill -->
+        <button class="map-pin" style="left:31.25%;top:25%" onclick="openStopDetail('university-mill')">
+          <div class="map-pin-dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"/></svg></div>
+        </button>
+        <!-- Apache Blvd -->
+        <button class="map-pin" style="left:56.25%;top:50.8%" onclick="openStopDetail('apache')">
+          <div class="map-pin-dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"/></svg></div>
+        </button>
+        <!-- Rural & Broadway -->
+        <button class="map-pin" style="left:78.75%;top:68.3%" onclick="openStopDetail('rural-broadway')">
+          <div class="map-pin-dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="6"/></svg></div>
+        </button>
+        <!-- Polytechnic Campus -->
+        <button class="map-pin" style="left:91.25%;top:81.7%" onclick="openStopDetail('polytechnic')">
+          <div class="map-pin-dot"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 2 22h20z"/></svg></div>
+        </button>
+
+        <!-- Bus marker (animated) -->
+        <div class="map-bus" id="busMarker" style="left:31.25%;top:60%">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16M7 17v2M17 17v2"/></svg>
+        </div>
+        <!-- User -->
+        <div class="map-user" style="left:25%;top:85%"></div>
+      </div>
+
+      <!-- Map controls -->
+      <div class="map-controls">
+        <button class="map-ctrl-btn" aria-label="Zoom in">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <button class="map-ctrl-btn" aria-label="Zoom out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+        </button>
+        <button class="map-ctrl-btn" aria-label="Recenter" onclick="toast('📍 Centered on you')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+        </button>
+      </div>
+
+      <!-- Bottom sheet -->
+      <div class="sheet collapsed" id="mapSheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <div class="sheet-title">
+            <span id="sheetStopName">Forest &amp; Lemon</span>
+            <span class="pill pill-success">on time</span>
+          </div>
+          <div class="sheet-sub" id="sheetStopAddress">901 S Forest Ave, Tempe, AZ 85281</div>
+          <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap">
+            <button class="hero-btn" style="background:var(--ink-100); color:var(--ink-900); padding:9px 14px; font-size:13px" onclick="copyAddress()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span id="copyBtnLabel">Copy address</span>
+            </button>
+            <a class="hero-btn hero-btn-gold" style="padding:9px 14px; font-size:13px; text-decoration:none" id="gmapsLink" href="https://www.google.com/maps/dir/?api=1&destination=901+S+Forest+Ave+Tempe+AZ" target="_blank" rel="noopener">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8z"/></svg>
+              Directions
+            </a>
+          </div>
+        </div>
+        <div class="sheet-body" id="mapSheetBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── ROUTES ─────────── -->
+  <div class="page hidden" id="page-routes" data-screen-label="03 Routes">
+    <div class="section">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input placeholder="Search routes or stops" />
+      </div>
+      <div class="seg-tabs">
+        <button class="seg-tab active">All</button>
+        <button class="seg-tab">Tempe</button>
+        <button class="seg-tab">Poly</button>
+        <button class="seg-tab">West</button>
+      </div>
+      <div class="route-list">
+        <div class="route-row" onclick="goRoute('tempe-poly')">
+          <div class="route-bus" style="background:var(--maroon-100); color:var(--maroon-700)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16"/></svg>
+          </div>
+          <div class="route-info">
+            <div class="route-name">Tempe ⇄ Polytechnic</div>
+            <div class="route-sub">Every 15 min · 4 stops · ~30 min</div>
+          </div>
+          <div class="route-eta"><div class="route-eta-num">5</div><div class="route-eta-unit">MIN</div><div style="font-size:9px;color:var(--ink-400);font-weight:600;margin-top:3px">Shuttle #1723</div></div>
+        </div>
+        <div class="route-row" onclick="goRoute('tempe-downtown')">
+          <div class="route-bus" style="background:#DCEAF6; color:var(--campus-downtown)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16"/></svg>
+          </div>
+          <div class="route-info">
+            <div class="route-name">Tempe ⇄ Downtown</div>
+            <div class="route-sub">Every 15 min · 3 stops · ~30 min</div>
+          </div>
+          <div class="route-eta"><div class="route-eta-num">10</div><div class="route-eta-unit">MIN</div><div style="font-size:9px;color:var(--ink-400);font-weight:600;margin-top:3px">Shuttle #1456</div></div>
+        </div>
+        <div class="route-row" onclick="goRoute('tempe-west')">
+          <div class="route-bus" style="background:#D8EBE0; color:var(--campus-west)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="2"/><path d="M4 11h16"/></svg>
+          </div>
+          <div class="route-info">
+            <div class="route-name">Tempe ⇄ West</div>
+            <div class="route-sub">Every 15 min · 2 stops · ~30 min</div>
+          </div>
+          <div class="route-eta"><div class="route-eta-num">8</div><div class="route-eta-unit">MIN</div><div style="font-size:9px;color:var(--ink-400);font-weight:600;margin-top:3px">Shuttle #1891</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── SCHEDULE ─────────── -->
+  <div class="page hidden" id="page-schedule" data-screen-label="04 Schedule">
+    <div class="section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h3 class="section-title" style="margin:0 0 4px">Today's schedule</h3>
+          <div id="todayDate" style="font-size:13px;color:var(--ink-700);font-weight:500">Wednesday, Mar 12</div>
+        </div>
+        <span class="pill pill-success" style="padding:4px 10px;font-size:11px">live</span>
+      </div>
+
+      <!-- Stop selector -->
+      <label style="display:block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-500);margin-bottom:8px;font-family:var(--font-mono)">Select a stop</label>
+      <div style="position:relative;margin-bottom:18px">
+        <select id="stopSelect" onchange="renderSchedule()" style="width:100%;padding:14px 44px 14px 16px;font-family:inherit;font-size:15px;font-weight:600;color:var(--ink-900);background:#fff;border:1px solid var(--ink-200);border-radius:12px;appearance:none;-webkit-appearance:none;cursor:pointer;outline:none;box-shadow:var(--shadow-1)">
+          <option value="forest-lemon">Forest &amp; Lemon</option>
+          <option value="univ-rural">Univ Dr &amp; Rural Rd</option>
+          <option value="simulator">Simulator Building</option>
+          <option value="parking-lot-37">Parking Lot 37</option>
+          <option value="central-polk">Central Ave &amp; Polk St</option>
+          <option value="univ-way-west">University Way N (West)</option>
+        </select>
+        <svg style="position:absolute;right:16px;top:50%;transform:translateY(-50%);pointer-events:none" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+
+      <div id="scheduleContent"></div>
+    </div>
+  </div>
+
+  <!-- ─────────── ALERTS ─────────── -->
+  <div class="page hidden" id="page-alerts" data-screen-label="05 Alerts">
+    <div class="section">
+      <h3 class="section-title">Active alerts</h3>
+      <div class="alert-card warn">
+        <div class="alert-card-icon" style="background:var(--warning)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+        <div class="alert-card-body">
+          <div class="alert-card-title">Polytechnic route delayed</div>
+          <div class="alert-card-desc">Construction near Simulator Building is causing 4-min delays. Plan accordingly.</div>
+          <div class="alert-card-time">Posted 18 min ago · Tempe ⇄ Polytechnic</div>
+        </div>
+      </div>
+      <div class="alert-card info">
+        <div class="alert-card-icon" style="background:var(--info)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+        </div>
+        <div class="alert-card-body">
+          <div class="alert-card-title">Schedule change starting Monday</div>
+          <div class="alert-card-desc">West campus route will run every 15 minutes starting Monday.</div>
+          <div class="alert-card-time">Posted 2 hours ago · Tempe ⇄ West</div>
+        </div>
+      </div>
+
+      <h3 class="section-title" style="margin-top:24px">Recent</h3>
+      <div class="alert-card danger">
+        <div class="alert-card-icon" style="background:var(--danger)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+        <div class="alert-card-body">
+          <div class="alert-card-title">Shuttle #208 cancelled (resolved)</div>
+          <div class="alert-card-desc">Mechanical issue. A replacement was dispatched.</div>
+          <div class="alert-card-time">Yesterday 4:12 PM · Tempe ⇄ Downtown</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── ROUTE DETAIL ─────────── -->
+  <div class="page hidden" id="page-route-detail" data-screen-label="Route Detail">
+    <div class="section">
+      <div class="eta-hero">
+        <div class="eta-hero-eyebrow">Arriving in</div>
+        <div class="eta-hero-num" id="etaNum">5</div>
+        <div class="eta-hero-unit">MINUTES</div>
+        <div class="eta-hero-stop">at <strong id="etaStop">Forest &amp; Lemon</strong></div>
+        <div id="etaBus" style="font-size:12px;color:var(--ink-500);margin-top:6px;font-weight:600">Shuttle #1723</div>
+      </div>
+    </div>
+    <div class="section">
+      <h3 class="section-title">Stops along this route</h3>
+      <div class="route-list" style="padding:8px 16px">
+        <div class="timeline" id="routeTimeline"></div>
+      </div>
+    </div>
+    <div class="section" style="display:flex;flex-direction:column;gap:10px">
+      <button class="notify-cta" id="notifyBtn" onclick="toggleNotify()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9zM10 21a2 2 0 0 0 4 0"/></svg>
+        <span id="notifyLabel">Notify 5 min before arrival</span>
+      </button>
+      <button class="notify-cta" onclick="viewOnMap()" style="background:var(--ink-100);color:var(--ink-900)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-6-3V5l6 3 6-3 6 3v12l-6-3-6 3z"/><path d="M9 8v12M15 5v12"/></svg>
+        View on Map
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
