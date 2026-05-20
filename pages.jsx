@@ -55,6 +55,8 @@ function HomePage({ setRoute, setProject, tweaks }) {
                 <div className={`project-cover swatch-${p.swatch}`} data-cursor="view" onClick={() => { setProject(p.id); setRoute(p.detail ? "case" : "projects"); }}>
                   {p.id === "asu-shuttle"
                     ? <img src="assets/shuttle-cover.jpeg" alt="ASU Shuttle Tracker" />
+                    : p.id === "studio-site"
+                    ? <img src="assets/wildbloom-cover.png" alt="Wildbloom Music Festival App" />
                     : <Placeholder label={p.cover || `${p.title} · cover`} swatch={p.swatch} />}
                 </div>
               </article>
