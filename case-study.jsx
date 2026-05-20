@@ -558,7 +558,7 @@ function ShuttleCaseStudy({ setRoute }) {
 
         <h3 className="case-h3--mb18">Prototype</h3>
         <div className="proto-frame">
-          <a href="https://peichunisdesigning.github.io/Shuttle-Tracking-Website-Redesign/" target="_blank" rel="noopener noreferrer" className="proto-link-btn">View Interactive Prototype →</a>
+          <iframe src="https://peichunisdesigning.github.io/Shuttle-Tracking-Website-Redesign/" title="ASU Shuttle Tracker Prototype"/>
         </div>
       </section>
 
