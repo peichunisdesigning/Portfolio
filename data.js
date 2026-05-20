@@ -23,7 +23,7 @@ window.PROJECTS = [
     role: "Designer · Developer",
     tagline: "A festival experience built for both sides of the stage.",
     desc: "End-to-end design of a companion app and admin portal for a music festival. Attendee interviews revealed scattered information and slow updates as core pain points, leading to a hi-fi Figma prototype with a unified schedule, interactive map, and a streamlined admin flow that gets staff from event creation to publish in under a minute.",
-    tags: ["Brand", "Web", "Astro", "Type"],
+    tags: ["UX Research", "Mobile App", "Admin Dashboard"],
     swatch: "cool",
     cover: "Letterforms on plotter paper",
   },
