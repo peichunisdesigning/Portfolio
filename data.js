@@ -26,6 +26,8 @@ window.PROJECTS = [
     tags: ["UX Research", "Mobile App", "Admin Dashboard"],
     swatch: "cool",
     cover: "Letterforms on plotter paper",
+    preview: "assets/wildbloom-cover.png",
+    detail: true,
   },
   {
     id: "kindling",

@@ -48,11 +48,11 @@ function HomePage({ setRoute, setProject, tweaks }) {
                   <div className="project-tags">
                     {p.tags.map((tg) => <span key={tg} className="tag">{tg}</span>)}
                   </div>
-                  <button className="btn" data-cursor="open" onClick={() => { setProject(p.id); setRoute(p.detail ? "case" : "projects"); }}>
+                  <button className="btn" data-cursor="open" onClick={() => { setProject(p.id); setRoute(p.detail ? "case" : "projects", p.id); }}>
                     See detail <span className="arrow">→</span>
                   </button>
                 </div>
-                <div className={`project-cover swatch-${p.swatch}`} data-cursor="view" onClick={() => { setProject(p.id); setRoute(p.detail ? "case" : "projects"); }}>
+                <div className={`project-cover swatch-${p.swatch}`} data-cursor="view" onClick={() => { setProject(p.id); setRoute(p.detail ? "case" : "projects", p.id); }}>
                   {p.id === "asu-shuttle"
                     ? <img src="assets/shuttle-cover.jpeg" alt="ASU Shuttle Tracker" />
                     : p.id === "studio-site"

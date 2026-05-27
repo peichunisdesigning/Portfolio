@@ -161,6 +161,7 @@ function ShuttleCaseStudy({ setRoute }) {
 
       {/* COVER */}
       <section className="case-cover">
+        <button className="case-back" onClick={() => setRoute && setRoute("projects")} aria-label="Back to works">←</button>
         <h1>ASU Shuttle Tracking Website Redesign</h1>
       </section>
 
@@ -745,6 +746,303 @@ function ShuttleCaseStudy({ setRoute }) {
         </div>
 
         <div className="case-back-footer">
+          <button className="btn solid" onClick={() => setRoute && setRoute("case", "studio-site")}>Next project →</button>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function WbSectionHeader({ num, title, tag }) {
+  return (
+    <header className="wb-section-header">
+      <span className="wb-section-num">{num}</span>
+      <h2 className="wb-section-title">{title}</h2>
+      <span className="wb-section-tag">{tag}</span>
+    </header>
+  );
+}
+
+function WbGoalIcon({ type }) {
+  if (type === "channels") {
+    return (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="6" width="8" height="12" rx="1.5"/>
+        <rect x="13" y="6" width="8" height="12" rx="1.5"/>
+        <path d="M11 12h2"/>
+      </svg>
+    );
+  }
+  if (type === "globe") {
+    return (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+      </svg>
+    );
+  }
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      <rect x="5" y="11" width="14" height="10" rx="2"/>
+      <path d="M12 16v2"/>
+    </svg>
+  );
+}
+
+function WildbloomCaseStudy({ setRoute }) {
+  const goals = [
+    {
+      id: "g-1",
+      icon: "lock",
+      num: "Goal 01",
+      title: "Free the manager from engineering.",
+      desc: "Eliminate developer hand-offs for everyday content updates. The event team should be able to publish without a ticket queue.",
+    },
+    {
+      id: "g-2",
+      icon: "channels",
+      num: "Goal 02",
+      title: "Decouple the channels.",
+      desc: "Let web and app publish independently. The team controls what each surface shows, and when, without forcing them into lockstep.",
+    },
+    {
+      id: "g-3",
+      icon: "globe",
+      num: "Goal 03",
+      title: "Unify the festival-goer's view.",
+      desc: "Replace screenshots and scattered links with a single source of truth: schedule, map, and lineup, always current.",
+    },
+  ];
+
+  const appScreens = [
+    ["assets/wildbloom-solution-01.jpg", "Splash screen", "First impression sets the tone."],
+    ["assets/wildbloom-solution-02.jpg", "Home screen", "Upcoming festivals at a glance."],
+    ["assets/wildbloom-solution-03.jpg", "Event detail", "Schedule, stages, and tickets on one page."],
+    ["assets/wildbloom-solution-04.jpg", "Ticket barcode", "One tap to entry barcode."],
+  ];
+
+  const adminScreens = [
+    ["assets/wildbloom-solution-05.jpg", "Admin home", "All events and vendors, one dashboard."],
+    ["assets/wildbloom-solution-06.jpg", "Events list", "Cross-referencing acts and vendors per event."],
+    ["assets/wildbloom-solution-07.jpg", "Musical acts cards", "Draft or published, controlled per act."],
+  ];
+
+  return (
+    <main className="page wildbloom-case" data-screen-label="Project · Wildbloom Music Festival">
+      <section className="wb-cover">
+        <div className="wb-cover-copy">
+          <button className="wb-back" onClick={() => setRoute && setRoute("projects")} aria-label="Back to works">←</button>
+          <span className="wb-kicker">02 · Case Study</span>
+          <h1>
+            <span>Wildbloom Music</span>
+            <span>Festival App &amp;</span>
+            <span>Admin Tool</span>
+          </h1>
+          <p>
+            A dual-platform festival system for attendees who need one trusted plan, and event managers who need to publish changes without waiting on engineering.
+          </p>
+          <div className="wb-meta">
+            <span>UX Research</span>
+            <span>Mobile App</span>
+            <span>Admin Dashboard</span>
+            <span>2026</span>
+          </div>
+        </div>
+        <div className="wb-cover-media">
+          <img src="assets/wildbloom-cover.png" alt="Wildbloom Music Festival App cover" />
+        </div>
+      </section>
+
+      <section id="wb-problem" className="wb-page">
+        <WbSectionHeader num="01" title="Problem Statement" tag="Why this matters" />
+
+        <section className="wb-block">
+          <span className="wb-block-num">1.1 · The team behind the curtain</span>
+          <h3 className="wb-block-title">Updating one photo takes <span className="wb-highlight wb-highlight-pink">three days</span>.</h3>
+          <p className="wb-block-desc">
+            Wildbloom's event managers have no admin tool. Every photo swap, vendor edit, or lineup change becomes an email to engineering, and by the time it goes live, the show is over.
+          </p>
+        </section>
+
+        <section className="wb-block">
+          <span className="wb-block-num">1.2 · The crowd in front of it</span>
+          <h3 className="wb-block-title">Festival-goers are screenshotting and guessing.</h3>
+          <p className="wb-block-desc">
+            With info scattered across web, email, and social, attendees end up taking screenshots of schedules and still cannot tell which day matches their taste.
+          </p>
+
+          <div className="wb-attendee-pair">
+            <article className="wb-attendee-card wb-attendee-card--lucie">
+              <div className="wb-attendee-head">
+                <div className="wb-attendee-avatar wb-attendee-avatar--lucie">L</div>
+                <div>
+                  <div className="wb-attendee-name">Lucie</div>
+                  <div className="wb-attendee-age">22 · Social</div>
+                </div>
+              </div>
+              <p className="wb-attendee-pain">Takes screenshots of schedules because cell service is unreliable.</p>
+            </article>
+            <article className="wb-attendee-card wb-attendee-card--randy">
+              <div className="wb-attendee-head">
+                <div className="wb-attendee-avatar wb-attendee-avatar--randy">R</div>
+                <div>
+                  <div className="wb-attendee-name">Randy</div>
+                  <div className="wb-attendee-age">28 · Music-first</div>
+                </div>
+              </div>
+              <p className="wb-attendee-pain">Cannot tell which day has the acts he actually wants to see.</p>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <section id="wb-goals" className="wb-page wb-page--wide">
+        <WbSectionHeader num="02" title="Goals" tag="What success looks like" />
+
+        <div className="wb-lede">
+          <p>
+            The work centers on one thing: <span className="wb-highlight wb-highlight-moss">shrinking the time it takes for information to travel between roles</span> from band, to manager, to engineer, to attendee.
+          </p>
+        </div>
+
+        <div className="wb-goals-grid">
+          {goals.map((goal) => (
+            <article key={goal.num} className={`wb-goal-card ${goal.id}`}>
+              <div className="wb-goal-head">
+                <div className="wb-goal-icon"><WbGoalIcon type={goal.icon} /></div>
+                <span className="wb-goal-num">{goal.num}</span>
+              </div>
+              <h3 className="wb-goal-title">{goal.title}</h3>
+              <p className="wb-goal-desc">{goal.desc}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="wb-handoff">
+          <div className="wb-handoff-text">
+            <span className="wb-handoff-label">The underlying metric</span>
+            <h3>Cut the number of hands a piece of information has to pass through.</h3>
+            <p>
+              Today a band's photo touches five roles before going live. The goal is to flatten that chain so the manager publishes directly, and the attendee sees it immediately.
+            </p>
+          </div>
+          <div className="wb-chain">
+            <div className="wb-chain-row">
+              <span className="wb-chain-label">Before</span>
+              <div className="wb-chain-nodes">
+                <span>Band</span><b>→</b><span>Manager</span><b>→</b><span>Dev</span><b>→</b><span>Web</span>
+              </div>
+              <span className="wb-chain-time">3 days</span>
+            </div>
+            <div className="wb-chain-row wb-chain-row--after">
+              <span className="wb-chain-label">After</span>
+              <div className="wb-chain-nodes">
+                <span>Band</span><b>→</b><span>Manager</span><b>→</b><span className="wb-strike">Dev</span><b>→</b><span>Web · App</span>
+              </div>
+              <span className="wb-chain-time">Minutes</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="wb-process" className="wb-page">
+        <WbSectionHeader num="03" title="Design Process" tag="How I worked" />
+
+        <section className="wb-block">
+          <span className="wb-block-num">3.1 · Synthesis</span>
+          <h3 className="wb-block-title">From 40+ stakeholder notes to <span className="wb-highlight wb-highlight-lilac">3 principles</span>.</h3>
+          <p className="wb-block-desc">
+            Seven categories of requirements clustered into recurring patterns. The signal underneath was not what to build, it was how the system should behave.
+          </p>
+
+          <div className="wb-principle-pills">
+            <div className="wb-principle-pill wb-principle-pill--pink">
+              <span>01</span>
+              <strong>Decoupled publishing</strong>
+            </div>
+            <div className="wb-principle-pill wb-principle-pill--moss">
+              <span>02</span>
+              <strong>Cross-reference as first-class</strong>
+            </div>
+            <div className="wb-principle-pill wb-principle-pill--lilac">
+              <span>03</span>
+              <strong>Calibrated friction</strong>
+            </div>
+          </div>
+        </section>
+
+        <section className="wb-block">
+          <span className="wb-block-num">3.2 · Architecture</span>
+          <h3 className="wb-block-title">Mapping the system.</h3>
+          <p className="wb-block-desc">
+            The attendee app optimizes for browsing live: lineup, map, plan. The admin tool optimizes for managing entities, each cross-linkable and independently publishable.
+          </p>
+
+          <div className="wb-ia-schematic">
+            <div className="wb-ia-col">
+              <span className="wb-ia-tag">Attendee App</span>
+              <div className="wb-ia-root-node">Wildbloom App</div>
+              <div className="wb-ia-line"></div>
+              <div className="wb-ia-children">
+                {["Home", "Lineup", "Map", "My Plan"].map((node) => (
+                  <div key={node} className="wb-ia-node-wrap"><div className="wb-ia-node">{node}</div></div>
+                ))}
+              </div>
+            </div>
+
+            <div className="wb-ia-col wb-ia-col--admin">
+              <span className="wb-ia-tag">Admin Tool</span>
+              <div className="wb-ia-root-node">Wildbloom Admin</div>
+              <div className="wb-ia-line"></div>
+              <div className="wb-ia-children">
+                {["Events", "Acts", "Vendors", "Publish"].map((node) => (
+                  <div key={node} className="wb-ia-node-wrap"><div className="wb-ia-node">{node}</div></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section id="wb-solution" className="wb-page">
+        <WbSectionHeader num="04" title="Solution" tag="The final designs" />
+
+        <section className="wb-block">
+          <span className="wb-block-num">4.1 · Attendee App</span>
+          <h3 className="wb-block-title">Attendee App</h3>
+          <p className="wb-block-desc">
+            A mobile-first companion for festival-goers: lineup, tickets, and event info in one place, built to work even when cell signal does not.
+          </p>
+
+          <div className="wb-screen-grid wb-screen-grid--app">
+            {appScreens.map(([src, alt, caption]) => (
+              <figure key={src} className="wb-screen-item">
+                <img className="wb-screen-img" src={src} alt={alt} loading="lazy" />
+                <figcaption>{caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+
+        <section className="wb-block">
+          <span className="wb-block-num">4.2 · Admin Tool</span>
+          <h3 className="wb-block-title">Admin Tool</h3>
+          <p className="wb-block-desc">
+            A desktop-first dashboard for the event team: manage events, acts, and vendors without touching engineering. Everything is cross-linked, and everything can be published independently.
+          </p>
+
+          <div className="wb-screen-grid wb-screen-grid--admin">
+            {adminScreens.map(([src, alt, caption]) => (
+              <figure key={src} className="wb-screen-item">
+                <img className="wb-screen-img" src={src} alt={alt} loading="lazy" />
+                <figcaption>{caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+
+        <div className="case-back-footer">
           <button className="btn solid" onClick={() => setRoute && setRoute("home")}>← Back to portfolio</button>
         </div>
       </section>
@@ -753,3 +1051,4 @@ function ShuttleCaseStudy({ setRoute }) {
 }
 
 window.ShuttleCaseStudy = ShuttleCaseStudy;
+window.WildbloomCaseStudy = WildbloomCaseStudy;

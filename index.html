@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=Instrument+Serif:ital@0;1&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&display=swap" />
-<link rel="stylesheet" href="styles.css?v=13" />
-<link rel="stylesheet" href="case-study.css?v=2" />
+<link rel="stylesheet" href="styles.css?v=15" />
+<link rel="stylesheet" href="case-study.css?v=3" />
 </head>
 <body>
 <div id="root"></div>
@@ -32,21 +32,32 @@ const { HomePage, ProjectsPage, AboutPage, ResumePage } = window.Pages;
 
 function getHash() {
   const h = window.location.hash.replace("#", "");
-  return ["home","projects","about","resume","case"].includes(h) ? h : "home";
+  const route = h.split(":")[0];
+  return ["home","projects","about","resume","case"].includes(route) ? route : "home";
+}
+
+function getProjectHash() {
+  const h = window.location.hash.replace("#", "");
+  const [route, id] = h.split(":");
+  return route === "case" ? (id || null) : null;
 }
 
 function App() {
   const [route, setRoute] = useState(getHash);
-  const [project, setProject] = useState(null);
+  const [project, setProject] = useState(getProjectHash);
   const [tweaks, setTweaks] = useState({ showTicker: false, heroVariant: "split", projectsVariant: "alt", collage: true, cursor: true });
 
-  const navigate = (r) => {
+  const navigate = (r, projectId = null) => {
     setRoute(r);
-    window.location.hash = r;
+    if (r === "case" && projectId) setProject(projectId);
+    window.location.hash = r === "case" && projectId ? `${r}:${projectId}` : r;
   };
 
   useEffect(() => {
-    const onHash = () => setRoute(getHash());
+    const onHash = () => {
+      setRoute(getHash());
+      setProject(getProjectHash());
+    };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
@@ -57,16 +68,18 @@ function App() {
     return () => window.removeEventListener("__tweaks", onTweak);
   }, []);
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [route]);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [route, project]);
 
-  useEffect(() => { window.__setCase = (id) => { setProject(id); navigate("case"); }; }, []);
+  useEffect(() => { window.__setCase = (id) => navigate("case", id); }, []);
 
   let body;
   if (route === "home") body = <HomePage setRoute={navigate} setProject={setProject} tweaks={tweaks} />;
   else if (route === "projects") body = <ProjectsPage setRoute={navigate} />;
   else if (route === "about") body = <AboutPage />;
   else if (route === "resume") body = <ResumePage />;
-  else if (route === "case") body = <window.ShuttleCaseStudy setRoute={navigate} />;
+  else if (route === "case") body = project === "studio-site"
+    ? <window.WildbloomCaseStudy setRoute={navigate} />
+    : <window.ShuttleCaseStudy setRoute={navigate} />;
 
   return (
     <div className="app-shell">
