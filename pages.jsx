@@ -221,7 +221,7 @@ function ResumePage() {
                 <div className="resume-entry">
                   <span className="when">Jul 2024 — Dec 2024</span>
                   <div>
-                    <h4><em>Librarian</em></h4>
+                    <h4><em>UX Designer</em></h4>
                     <p className="who">Taipei Veterans General Hospital · Taipei, Taiwan</p>
                     <ul>
                       <li>Redesigned the SSO login interface for a hospital database used daily by 50+ medical staff; surfaced login rules directly in the UI, reducing support inquiries from clinical users.</li>
@@ -233,7 +233,7 @@ function ResumePage() {
                 <div className="resume-entry">
                   <span className="when">Jan 2023 — Mar 2024</span>
                   <div>
-                    <h4><em>Manual QA Engineer</em></h4>
+                    <h4><em>UX Designer (QA &amp; Usability)</em></h4>
                     <p className="who">WRCD · New Taipei, Taiwan</p>
                     <ul>
                       <li>Performed manual testing for a consumer mobile app covering pet food subscription, health tracking, and e-commerce features; flagged usability issues across UI flows, interaction logic, and animations alongside functional bugs.</li>
