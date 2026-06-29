@@ -175,7 +175,7 @@ function Footer({ setRoute }) {
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "palette": "reverse",
   "accent": "#387495",
-  "fontPair": "fraunces-wonk",
+  "fontPair": "patrick-quicksand",
   "dark": false,
   "showTicker": true,
   "heroVariant": "split",
@@ -296,6 +296,11 @@ function TweaksUI() {
       root.style.setProperty("--accent", t.accent);
     }
     const pairs = {
+      "patrick-quicksand": {
+        serif: '"Patrick Hand", "Segoe Print", "Bradley Hand", cursive',
+        sans: '"Quicksand", "Avenir Next", "Segoe UI", -apple-system, sans-serif',
+        dataFont: "patrick-hand",
+      },
       "fraunces-wonk": {
         serif: '"Fraunces", "anca", Georgia, serif',
         sans: '"Switzer", -apple-system, sans-serif',
@@ -322,7 +327,7 @@ function TweaksUI() {
         dataFont: "playfair",
       },
     };
-    const p = pairs[t.fontPair] || pairs["fraunces-wonk"];
+    const p = pairs[t.fontPair] || pairs["patrick-quicksand"];
     root.style.setProperty("--serif", p.serif);
     root.style.setProperty("--sans", p.sans);
     root.dataset.font = p.dataFont;
@@ -357,7 +362,7 @@ function TweaksUI() {
           label="Font pair"
           value={t.fontPair}
           onChange={(v) => setTweak("fontPair", v)}
-          options={["fraunces-wonk", "anca-switzer", "instrument-geist", "newsreader-dmsans"]}
+          options={["patrick-quicksand", "fraunces-wonk", "anca-switzer", "instrument-geist", "newsreader-dmsans"]}
         />
       </TweakSection>
       <TweakSection label="Hero">

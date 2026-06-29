@@ -1,19 +1,3 @@
-/* ============ Fonts ============ */
-@font-face {
-  font-family: "Switzer";
-  src: url("assets/fonts/Switzer-Variable.woff2") format("woff2-variations");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Switzer";
-  src: url("assets/fonts/Switzer-VariableItalic.woff2") format("woff2-variations");
-  font-weight: 100 900;
-  font-style: italic;
-  font-display: swap;
-}
-
 /* ============ Tokens ============ */
 :root {
   --bg: #fbf5e8;
@@ -38,8 +22,8 @@
   --nav-tab-bot: #d1ba9d;
   --nav-tab-ink: #6b6258;
 
-  --serif: "Fraunces", "anca", Georgia, serif;
-  --sans: "Switzer", "Geist", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --serif: "Patrick Hand", "Segoe Print", "Bradley Hand", cursive;
+  --sans: "Quicksand", "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
 
   /* Fraunces variation axes — adjusted per element class below */
@@ -84,8 +68,7 @@ body {
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; }
 
-/* ============ Fraunces variation tuning ============ */
-/* These rules only fire when --serif resolves to Fraunces. The cascade is harmless when --serif points elsewhere (e.g. anca) because anca ignores font-variation-settings. */
+/* ============ Legacy font tuning ============ */
 [data-font="fraunces"] .hero-name,
 [data-font="fraunces"] .section-title,
 [data-font="fraunces"] .project-title,
@@ -134,6 +117,19 @@ button { font-family: inherit; cursor: pointer; }
 
 [data-font="fraunces"] .about-prose .small {
   font-variation-settings: normal; /* sans body — unaffected */
+}
+
+/* Patrick Hand only ships as a single weight, so these heavier values
+   rely on browser synthetic bolding for stronger title emphasis. */
+[data-font="patrick-hand"] .site-id,
+[data-font="patrick-hand"] .nav-link,
+[data-font="patrick-hand"] .hero-name,
+[data-font="patrick-hand"] .section-title,
+[data-font="patrick-hand"] .project-title,
+[data-font="patrick-hand"] .foot-cta,
+[data-font="patrick-hand"] .index-row .name,
+[data-font="patrick-hand"] .resume-entry h4 {
+  font-weight: 600;
 }
 
 /* All-Fraunces mode: body / inline UI also uses Fraunces at small opsz */
@@ -555,6 +551,20 @@ button { font-family: inherit; cursor: pointer; }
   .hero-grid { grid-template-columns: 1fr; gap: 32px; }
   .hero-portrait { aspect-ratio: 4/3; }
   .hero-meta { gap: 18px; }
+  .hero {
+    padding: 52px var(--pad-page) 36px;
+  }
+  .hero-name {
+    font-size: clamp(28px, 10vw, 48px);
+    line-height: 1.08;
+    max-width: 10ch;
+    margin-bottom: 18px;
+  }
+  .hero-sub {
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 100%;
+  }
 }
 
 /* ============ Section header ============ */
@@ -752,6 +762,30 @@ button { font-family: inherit; cursor: pointer; }
   .project, .project.reverse { grid-template-columns: 1fr; gap: 18px; }
   .project.reverse .project-text { order: 1; }
   .project.reverse .project-cover { order: 0; }
+  .project-title {
+    font-size: clamp(22px, 8.8vw, 34px);
+    line-height: 1.08;
+  }
+  .project-tagline {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+  .project-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .project-tags {
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .tag {
+    padding: 5px 8px;
+    font-size: 9px;
+  }
+  .project-cover {
+    padding: 5%;
+  }
 }
 
 /* ============ Footer ============ */
