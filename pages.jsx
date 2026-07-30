@@ -9,6 +9,7 @@ function HomePage({ setRoute, setProject, tweaks }) {
   const heroVariant = t.heroVariant || "split";
   const projectsVariant = t.projectsVariant || "alt";
   const showCollage = t.collage !== false;
+  const projectHref = (p) => p.detail ? `project/${p.id}/` : "#projects";
   return (
     <main className="page" data-screen-label="01 Home">
       {/* Hero */}
@@ -48,17 +49,17 @@ function HomePage({ setRoute, setProject, tweaks }) {
                   <div className="project-tags">
                     {p.tags.map((tg) => <span key={tg} className="tag">{tg}</span>)}
                   </div>
-                  <button className="btn" data-cursor="open" onClick={() => { setProject(p.id); setRoute(p.detail ? "case" : "projects", p.id); }}>
+                  <a className="btn" data-cursor="open" href={projectHref(p)}>
                     See detail <span className="arrow">→</span>
-                  </button>
+                  </a>
                 </div>
-                <div className={`project-cover swatch-${p.swatch}`} data-cursor="view" onClick={() => { setProject(p.id); setRoute(p.detail ? "case" : "projects", p.id); }}>
+                <a className={`project-cover swatch-${p.swatch}`} data-cursor="view" href={projectHref(p)}>
                   {p.id === "asu-shuttle"
                     ? <img src="assets/shuttle-cover.jpeg" alt="ASU Shuttle Tracker" />
                     : p.id === "studio-site"
                     ? <img src="assets/wildbloom-cover.png" alt="Wildbloom Music Festival App" />
                     : <Placeholder label={p.cover || `${p.title} · cover`} swatch={p.swatch} />}
-                </div>
+                </a>
               </article>
             ))}
           </div>

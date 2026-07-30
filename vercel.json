@@ -1,4 +1,4 @@
 {
-  "buildCommand": "printf \"window.MAPBOX_TOKEN = '%s';\\n\" \"$MAPBOX_TOKEN\" > assets/prototype/config.js",
+  "buildCommand": "node scripts/build-case-pages.mjs && printf \"window.MAPBOX_TOKEN = '%s';\\n\" \"$MAPBOX_TOKEN\" > assets/prototype/config.js",
   "outputDirectory": "."
 }
